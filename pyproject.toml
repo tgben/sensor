@@ -1,0 +1,24 @@
+[build-system]
+requires = ["setuptools>=64", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "sensor"
+version = "0.1.0"
+dependencies = [
+    "pytest>=8.0",
+    "scapy>=2.5",
+    "rich>=13.0"
+]
+requires-python = ">=3.14"
+
+[tool.pytest.ini_options]
+addopts = "-v"
+testpaths = ["tests"]
+pythonpath = ["src"]
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[project.scripts]
+sensor = "sensor.main:main"

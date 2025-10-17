@@ -1,0 +1,18 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.egg-info/
+
+# Virtual environment
+.venv/
+
+# Testing
+.pytest_cache/
+
+# Output files
+out
+
+# Test pcap/cap files
+tests/pcap/*.pcap
+tests/pcap/*.cap

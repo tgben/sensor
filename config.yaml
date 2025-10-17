@@ -1,0 +1,19 @@
+flowtable:
+  capacity: 50
+  max_flow_duration: 1
+
+capture:
+  input_mode: pcap
+  input_pcap: ../tests/pcap/http.cap
+
+process:
+  export_interval: 0.1
+
+logging:
+  level: DEBUG
+
+export:
+  purge_interval: 3
+  evict_interval: 2
+  output_mode: file
+  output_file: ../out
