@@ -4,17 +4,47 @@ tests for ringbuffer
 
 
 import pytest
+from pathlib import Path
 from sensor.shared.ringbuffer import RingBuffer
+from sensor.config import load_config
+from tests.utils import packet_generator
 
 
-def test_size():
-  for i in range(0, 50, 10):
-    rb = RingBuffer(i)
-    assert rb.capacity == max(rb._min_size, i)
+def test_resize():
+  cfg = load_config(Path('tests/config.yaml'))
+  cfg.capture.min_buffer = min_buffer = 25
+  cfg.capture.max_buffer = max_buffer = 100
+
+  rb = RingBuffer(cfg)
+
+  expected_len = 0
+  expected_capacity = min_buffer
+
+  assert rb.capacity == expected_capacity
+  assert len(rb) == expected_len
+
+  packets = packet_generator(
+    num_packets=max_buffer + 2,
+    num_flows=max_buffer + 2)
+
+  for _ in range(min_buffer):
+    rb.push(next(packets))
+    expected_len += 1
+    assert len(rb) == expected_len
+    assert rb.capacity == expected_capacity
+
+  for _ in range(max_buffer - min_buffer):
+    rb.push(next(packets))
+    expected_len += 1
+    assert len(rb) == expected_len
+    if len(rb) > expected_capacity:
+      expected_capacity *= 2
+    assert rb.capacity == expected_capacity
 
 
 def test_push_pop():
-  rb = RingBuffer(30)
+  cfg = load_config(Path('tests/config.yaml'))
+  rb = RingBuffer(cfg)
   rb.push(1)
   assert rb.size == 1
   rb.push(2)
