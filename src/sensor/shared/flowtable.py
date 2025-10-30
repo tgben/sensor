@@ -12,8 +12,10 @@ flow table class implemented with an LRU
 
 import logging
 import datetime
+import threading
 from sensor.config import Config
 from sensor.shared.types import Packet, Flow
+from sensor.shared.utils import sync
 
 
 log = logging.getLogger(__name__)
@@ -26,6 +28,7 @@ class Node:
     self.key = key
     self.prev = prev
     self.next = next
+    self.lock = threading.Lock()
 
 class FlowTable:
   # The flowtable implemented by an LRU cache.
@@ -36,7 +39,9 @@ class FlowTable:
     self.size = 0
     self.mem = {}
     self.head = self.tail = None
+    self.lock = threading.Lock()
 
+  @sync
   def __str__(self):
     flows = []
     cur = self.head
@@ -88,6 +93,7 @@ class FlowTable:
     self.__insert(n)
     return n.flow
 
+  @sync
   def put(self, packet: Packet) -> None:
     # given a key & flow, insert the node
     # packet and flow keys should be the same if same 5-tuple
@@ -98,7 +104,7 @@ class FlowTable:
       n = self.mem[key]
       self.__remove(n)
       self.__insert(n)
-      self.update_flow(n.flow, packet)
+      self.__update_flow(n.flow, packet)
       return
     
     # flow does not exist in the LRU, create an new one and add it.
@@ -106,14 +112,20 @@ class FlowTable:
     n = Node(flow, key)
     self.mem[key] = n
     if self.size == self.capacity:
-      self.evict(self.tail)
+      self.__evict(self.tail)
     self.__insert(n)
     self.size += 1 
  
+  @sync
   def update_flow(self, flow: Flow, packet: Packet):
     # update an existing flow with a packet information
     flow.packet_count += 1
 
+  def __update_flow(self, flow: Flow, packet: Packet):
+    # update an existing flow with a packet information
+    flow.packet_count += 1
+
+  @sync
   def evict(self, n=None):
     # evicts a node. Defaults to evicting the tail.
     if not n: n = self.tail
@@ -122,6 +134,15 @@ class FlowTable:
     self.size -= 1
     return del_n.flow
 
+  def __evict(self, n=None):
+    # evicts a node. Defaults to evicting the tail.
+    if not n: n = self.tail
+    del_n = self.__remove(n)
+    del self.mem[del_n.key]
+    self.size -= 1
+    return del_n.flow
+
+  @sync
   def evictExpiredFlows(self):
     # evict all expired flows
     res = []
@@ -133,6 +154,6 @@ class FlowTable:
       if expire_timestamp < datetime.datetime.now():
         flows_to_evict.append((key, node))
     for key, node in flows_to_evict:
-      flow = self.evict(node)
+      flow = self.__evict(node)
       res.append(flow)
     return res

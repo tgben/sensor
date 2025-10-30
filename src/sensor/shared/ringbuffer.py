@@ -7,21 +7,25 @@ technically can hold any data, but typehinted to hold Packets
 
 
 import logging
+import threading
 from sensor.config import Config
+from sensor.shared.utils import sync
 
 
 log = logging.getLogger(__name__)
 
 # enforce singleton pattern with a metaclass
 class RingBuffer:
-  __min_size = 20
   
   def __init__(self, cfg: Config):
-    self.data = [None] * self.__min_size
+    self.cfg = cfg
+    self.data = [None] * self.cfg.capture.min_buffer
     self.head, self.tail = -1, 0
     self.size = 0
-    self.capacity = self.__min_size
+    self.capacity = self.cfg.capture.min_buffer
+    self.lock = threading.Lock()
     
+  @sync
   def push(self, element: Packet) -> bool:
     # pushes an item into the RB.
     if not element:
@@ -33,6 +37,7 @@ class RingBuffer:
     self.size += 1
     return True
 
+  @sync
   def pop(self):
     if not self.size:
       return None
@@ -41,13 +46,14 @@ class RingBuffer:
     self.tail = (self.tail + 1) % self.capacity
     self.size -= 1
     if self.size < (self.capacity // 2):
-      self.shrink()
+      self.__shrink()
     return res
 
-  def shrink(self):
-    if self.capacity > self.__min_size * 2:
+  def __shrink(self):
+    if self.capacity > self.cfg.capture.min_buffer * 2:
       self.__copydata(self.capacity // 2)
 
+  @sync
   def __str__(self):
     arr = []
     for i in range(self.size):
@@ -55,6 +61,7 @@ class RingBuffer:
       arr.append(self.data[index])
     return f"{str(arr)}\n\tsize={self.size}\n\tcapacity={self.capacity}"
 
+  @sync
   def __len__(self):
     return self.size
       
