@@ -34,21 +34,45 @@ class FlowTableConfig:
 class CaptureConfig:
   input_mode: str = ''
   input_pcap: str = ''
+  min_buffer: int = 0
+  max_buffer: int = 0
+
+  __BUFFER_MIN = 1
+  __BUFFER_MAX = 10_000_000
 
   def __post_init__(self):
     self.input_mode = self.input_mode.lower()
+    try:
+      self.min_buffer = int(self.min_buffer)
+    except Exception as e:
+      raise ConfigError(self.min_buffer, 'min_buffer is not an integer')
 
   def validate(self):
-    input_mode_options = ['pcap']
-    if (not self.input_mode or
+
+    def validateInputMode():
+      input_mode_options = ['pcap']
+      if (
+        not self.input_mode or
         self.input_mode not in input_mode_options or
         not isinstance(self.input_mode, str)):
-      raise ConfigError(self.input_mode, f'input mode is invalid. options: {input_mode_options}')
-    if self.input_mode == 'pcap':
-      if not self.input_pcap:
-        raise ConfigError(self.input_pcap, 'input_mode is defined but input pcap is not.')
-      if not Path(self.input_pcap).exists():
-        raise ConfigError(self.input_pcap, 'input_pcap is not a valid path.')
+        raise ConfigError(self.input_mode, f'input mode is invalid. options: {input_mode_options}')
+
+      if self.input_mode == 'pcap':
+        if not self.input_pcap:
+          raise ConfigError(self.input_pcap, 'input_mode is defined but input pcap is not.')
+        if not Path(self.input_pcap).exists():
+          raise ConfigError(self.input_pcap, 'input_pcap is not a valid path.')
+    
+    def validateBuffer(buffer: int):
+      if not isinstance(buffer, int):
+        raise ConfigError(buffer, '_buffer is not an integer')
+      if not(self.__BUFFER_MIN <= buffer <= self.__BUFFER_MAX):
+        raise ConfigError(buffer, 'buffer is not in the valid range')
+
+
+    validateInputMode()
+    validateBuffer(self.min_buffer)
+    validateBuffer(self.max_buffer)
 
 @dataclass
 class LoggingConfig:
