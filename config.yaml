@@ -4,7 +4,9 @@ flowtable:
 
 capture:
   input_mode: pcap
-  input_pcap: ../tests/pcap/http.cap
+  input_pcap: tests/pcap/http.cap
+  min_buffer: 20
+  max_buffer: 1000000
 
 process:
   export_interval: 0.1
