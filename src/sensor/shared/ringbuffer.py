@@ -51,7 +51,7 @@ class RingBuffer:
 
   def __shrink(self):
     if self.capacity > self.cfg.capture.min_buffer * 2:
-      self.__copydata(self.capacity // 2)
+      self.__copyData(self.capacity // 2)
 
   @sync
   def __str__(self):
@@ -66,9 +66,9 @@ class RingBuffer:
     return self.size
       
   def __expand(self):
-    self.__copydata(self.capacity * 2)
+    self.__copyData(self.capacity * 2)
 
-  def __copydata(self, new_capacity):
+  def __copyData(self, new_capacity):
     new_data = [None] * new_capacity
     for i in range(self.size):
       index = (self.tail + i) % self.capacity

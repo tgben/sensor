@@ -13,7 +13,7 @@ from sensor.shared.flowtable import FlowTable
 from sensor.config import Config
 
 
-def process_loop(
+def processLoop(
   config: Config,
   ringbuffer: RingBuffer,
   flowtable: FlowTable):

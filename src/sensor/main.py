@@ -33,10 +33,10 @@ sensor entry point
 import threading
 import logging
 import datetime
-from sensor.config import load_config
-from sensor.capture.capture import capture_loop
-from sensor.process.process import process_loop
-from sensor.export.export import evict_loop, purge_loop
+from sensor.config import loadConfig
+from sensor.capture.capture import captureLoop
+from sensor.process.process import processLoop
+from sensor.export.export import evictLoop, purgeLoop
 from sensor.shared.ringbuffer import RingBuffer
 from sensor.shared.flowtable import FlowTable
 from sensor.shared.exportqueue import ExportQueue
@@ -44,7 +44,7 @@ from sensor.shared.exportqueue import ExportQueue
 
 def main():
   # main loop
-  cfg = load_config()
+  cfg = loadConfig()
   logging.basicConfig(level=cfg.logging.level)
   log = logging.getLogger(__name__)
   ringbuffer = RingBuffer(cfg)
@@ -52,19 +52,19 @@ def main():
   exportqueue = ExportQueue(cfg)
 
   capture_thread = threading.Thread(
-    target=capture_loop,
+    target=captureLoop,
     args=(cfg, ringbuffer))
 
   process_thread = threading.Thread(
-    target=process_loop,
+    target=processLoop,
     args=(cfg, ringbuffer, flowtable))
 
   evict_thread = threading.Thread(
-    target=evict_loop,
+    target=evictLoop,
     args=(cfg, flowtable, exportqueue))
 
   purge_thread = threading.Thread(
-    target=purge_loop,
+    target=purgeLoop,
     args=(cfg, exportqueue))
 
   threads = [

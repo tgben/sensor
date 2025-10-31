@@ -17,10 +17,10 @@ from sensor.shared.flowtable import FlowTable
 
 log = logging.getLogger(__name__)
 
-def purge_loop(cfg: Config, exportqueue: ExportQueue):
+def purgeLoop(cfg: Config, exportqueue: ExportQueue):
   # thread that purges the exportqueue and writes it to output.
 
-  def output_to_file():
+  def outputToFile():
     if not cfg.export.output_file:
       raise ConfigError('output mode is file and no output file was specified.')
     with open(cfg.export.output_file, 'w') as f:
@@ -32,7 +32,7 @@ def purge_loop(cfg: Config, exportqueue: ExportQueue):
 
   def purge():
     if cfg.export.output_mode == 'file':
-      output_to_file()
+      outputToFile()
 
 
   num_purges = 0
@@ -43,7 +43,7 @@ def purge_loop(cfg: Config, exportqueue: ExportQueue):
     log.debug(f'Purged exportqueue. {num_purges}.')
 
 
-def evict_loop(
+def evictLoop(
   cfg: Config,
   flowtable: FlowTable,
   exportqueue: ExportQueue):

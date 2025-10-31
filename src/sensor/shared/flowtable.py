@@ -4,7 +4,7 @@ flow table class implemented with an LRU
   The LRU manages itself by:
     evicts packets when LRU is too long (or size is too big)
     evicts packets when they expire (max flow size)
-  flows are added by process_loop
+  flows are added by processLoop
   flows are manually evicted by export_loop
     (in addition to auto-evicted by expiration or LRU hitting capacity)
 '''
@@ -104,7 +104,7 @@ class FlowTable:
       n = self.mem[key]
       self.__remove(n)
       self.__insert(n)
-      self.__update_flow(n.flow, packet)
+      self.__updateFlow(n.flow, packet)
       return
     
     # flow does not exist in the LRU, create an new one and add it.
@@ -117,11 +117,11 @@ class FlowTable:
     self.size += 1 
  
   @sync
-  def update_flow(self, flow: Flow, packet: Packet):
+  def updateFlow(self, flow: Flow, packet: Packet):
     # update an existing flow with a packet information
     flow.packet_count += 1
 
-  def __update_flow(self, flow: Flow, packet: Packet):
+  def __updateFlow(self, flow: Flow, packet: Packet):
     # update an existing flow with a packet information
     flow.packet_count += 1
 

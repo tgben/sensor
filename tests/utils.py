@@ -20,7 +20,7 @@ def packet_generator(num_packets, num_flows):
 #   def decorator(func: Callable) -> Callable:
 #     @wraps(func)
 #     def wrapper(*args, **kwargs):
-#       cfg = load_config(path)
+#       cfg = loadConfig(path)
 #       if 'capture' in overrides:
 #         new_capture = replace(cfg.capture, **overrides['capture'])
 #         cfg = replace(cfg, capture=new_capture)

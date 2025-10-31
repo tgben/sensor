@@ -120,7 +120,7 @@ class Config:
     self.process.validate()
     self.export.validate()
 
-def load_config(path: Path = Path("../config.yaml")) -> Config:
+def loadConfig(path: Path = Path("../config.yaml")) -> Config:
   if not path.exists():
     raise ConfigError(path, 'config path does not exist.')
   

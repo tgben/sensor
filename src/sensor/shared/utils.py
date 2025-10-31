@@ -2,7 +2,7 @@ from functools import wraps
 from typing import Callable
 from pathlib import Path
 from dataclasses import dataclass, replace
-from sensor.config import load_config
+from sensor.config import loadConfig
 
 def sync(func: Callable) -> Callable:
   # make a function thread-safe.

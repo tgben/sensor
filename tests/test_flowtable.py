@@ -8,7 +8,7 @@ import socket
 import datetime
 import random
 from pathlib import Path
-from sensor.config import load_config
+from sensor.config import loadConfig
 from sensor.shared.flowtable import FlowTable
 from sensor.shared.types import Packet, FiveTuple
 from tests.utils import packet_generator
@@ -16,7 +16,7 @@ from tests.utils import packet_generator
 
 
 def test_size_eviction():
-  cfg = load_config(Path('tests/config.yaml'))
+  cfg = loadConfig(Path('tests/config.yaml'))
   flowtable = FlowTable(cfg)
   packets = packet_generator(flowtable.capacity + 10, flowtable.capacity + 10)
   for packet in packets:

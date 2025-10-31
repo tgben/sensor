@@ -6,12 +6,12 @@ tests for ringbuffer
 import pytest
 from pathlib import Path
 from sensor.shared.ringbuffer import RingBuffer
-from sensor.config import load_config
+from sensor.config import loadConfig
 from tests.utils import packet_generator
 
 
 def test_resize():
-  cfg = load_config(Path('tests/config.yaml'))
+  cfg = loadConfig(Path('tests/config.yaml'))
   cfg.capture.min_buffer = min_buffer = 25
   cfg.capture.max_buffer = max_buffer = 100
 
@@ -43,7 +43,7 @@ def test_resize():
 
 
 def test_push_pop():
-  cfg = load_config(Path('tests/config.yaml'))
+  cfg = loadConfig(Path('tests/config.yaml'))
   rb = RingBuffer(cfg)
   rb.push(1)
   assert rb.size == 1

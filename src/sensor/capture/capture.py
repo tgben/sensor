@@ -21,61 +21,61 @@ TCP_PROTO = 6
 
 log = logging.getLogger(__name__)
 
-def capture_loop(cfg: Config, ringbuffer: RingBuffer):
+def captureLoop(cfg: Config, ringbuffer: RingBuffer):
 
-  def parse_ipv4(packet: Packet, buf):
+  def parseIpv4(packet: Packet, buf):
     packet.fivetuple.sip = buf.src
     packet.fivetuple.dip = buf.dst
     packet.fivetuple.proto = buf.p
     if buf.p == UDP_PROTO:
-      parse_udp(packet, buf.data)
+      parseUdp(packet, buf.data)
     elif buf.p == TCP_PROTO:
-      parse_udp(packet, buf.data)
+      parseUdp(packet, buf.data)
     else:
       raise ParsingError('unknown protocol {buf.p}', layer='ip')
 
     
-  def parse_ipv6(packet: Packet, buf):
+  def parseIpv6(packet: Packet, buf):
     raise NotImplementedError
 
 
-  def parse_udp(packet: Packet, buf):
+  def parseUdp(packet: Packet, buf):
     packet.fivetuple.sport = buf.sport
     packet.fivetuple.dport = buf.dport
 
 
-  def parse_tcp(packet: Packet, buf):
+  def parseTcp(packet: Packet, buf):
     packet.fivetuple.sport = buf.sport
     packet.fivetuple.dport = buf.dport
 
 
-  def parse_eth(packet: Packet, buf):
+  def parseEth(packet: Packet, buf):
     try:
       eth = dpkt.ethernet.Ethernet(buf)
       if eth.type == IPV4_ETHERTPE:
-        parse_ipv4(packet, eth.data)
+        parseIpv4(packet, eth.data)
       elif eth.type == IPV4_ETHERTPE:
-        parse_ipv6(packet, eth.data)
+        parseIpv6(packet, eth.data)
       else:
         raise ParsingError("unknown eth type {eth.type}")
     except:
       log.debug('Unknown Parsing Error')
 
 
-  def parse_packet(timestamp: datetime.datetime, buf) -> Packet:
+  def parsePacket(timestamp: datetime.datetime, buf) -> Packet:
     timestamp = datetime.datetime.utcfromtimestamp(timestamp)
     packet = Packet(timestamp=timestamp, fivetuple=FiveTuple())
-    parse_eth(packet, buf)
+    parseEth(packet, buf)
     packet.validate()
     return packet
 
 
-  def capture_pcap():
+  def capturePcap():
     with open(cfg.capture.input_pcap, "rb") as f:
       pcap = dpkt.pcap.Reader(f)
       for timestamp, buf in pcap:
-        packet = parse_packet(timestamp, buf)
+        packet = parsePacket(timestamp, buf)
         ringbuffer.push(packet)
     
   if cfg.capture.input_mode == 'pcap':
-    capture_pcap()
+    capturePcap()
